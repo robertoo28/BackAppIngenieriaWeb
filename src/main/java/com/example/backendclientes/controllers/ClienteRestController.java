@@ -1,6 +1,6 @@
 package com.example.backendclientes.controllers;
 
-import com.example.backendclientes.Cliente;
+import com.example.backendclientes.model.Cliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

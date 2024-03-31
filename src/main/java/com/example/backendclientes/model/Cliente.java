@@ -1,4 +1,4 @@
-package com.example.backendclientes;
+package com.example.backendclientes.model;
 
 import jakarta.persistence.*;
 

@@ -1,6 +1,6 @@
 package com.example.backendclientes.services;
 
-import com.example.backendclientes.Cliente;
+import com.example.backendclientes.model.Cliente;
 
 import java.util.List;
 

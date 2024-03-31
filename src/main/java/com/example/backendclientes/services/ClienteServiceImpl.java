@@ -1,7 +1,7 @@
 package com.example.backendclientes.services;
 
-import com.example.backendclientes.Cliente;
-import com.example.backendclientes.IClienteDAO;
+import com.example.backendclientes.model.Cliente;
+import com.example.backendclientes.repository.IClienteDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
