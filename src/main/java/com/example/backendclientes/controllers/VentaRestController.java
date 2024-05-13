@@ -33,6 +33,12 @@ public class VentaRestController {
         if (cliente == null) {
             return ResponseEntity.notFound().build();
         }
+        if(cliente.getNombre().length() > 20){
+            return ResponseEntity.badRequest().build();
+        }
+        if (cliente.getApellido().length() >20) {
+            return ResponseEntity.badRequest().build();
+        }
         venta.setCliente(cliente);
         return ResponseEntity.ok(ventaService.save(venta));
     }

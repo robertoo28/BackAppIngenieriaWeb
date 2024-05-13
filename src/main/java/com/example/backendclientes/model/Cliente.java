@@ -4,10 +4,15 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 @Entity
 @Table(name="clientes")
 public class Cliente implements Serializable {
+    private static final String EMAIL_PATTERN =
+            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,4 +69,13 @@ public class Cliente implements Serializable {
         this.createAt = createAt;
     }
     private static final long serialVersionUID = 1L;
+
+    public  boolean validarEmail(String email) {
+        Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+        if (email == null) {
+            return false;
+        }
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
 }
