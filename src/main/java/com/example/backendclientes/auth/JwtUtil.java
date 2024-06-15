@@ -9,7 +9,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     private String secret = "secretKey";
-    private int jwtExpirationMs = 900000; // 24 horas
+    private int jwtExpirationMs = 900000;
 
     public String generateToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
@@ -31,7 +31,6 @@ public class JwtUtil {
             Jwts.parser().setSigningKey(secret).parseClaimsJws(authToken);
             return true;
         } catch (JwtException e) {
-            // Log y manejo de excepciones
         }
         return false;
     }

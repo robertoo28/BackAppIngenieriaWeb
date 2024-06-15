@@ -25,31 +25,28 @@ public class AuthController {
 
     @Autowired
     AuthenticationManager authenticationManager;
-
     @Autowired
     IUsuarioDAO usuarioRepository;
-
     @Autowired
     JwtUtil jwtUtils;
     @Autowired
     PasswordEncoder passwordEncoder;
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         logger.debug("Intento de login con username: {} y password: {}", loginRequest.getUsername(), loginRequest.getPassword());
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateToken(authentication);
-
+        System.out.println("Mi bonito JWT al fin"+ jwt );
         return ResponseEntity.ok(new JwtResponse(jwt));
+
+
     }
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody Usuario signUpRequest) {
-        if (usuarioRepository.existsByUsername(signUpRequest.getUsername())) {  // Asegúrate de que tu repositorio tenga este método
+        if (usuarioRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body("Error: El nombre de usuario ya está en uso.");
@@ -59,10 +56,8 @@ public class AuthController {
         Usuario user = new Usuario();
         user.setUsername(signUpRequest.getUsername());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
-        user.setEnabled(true);  // Asegúrate de habilitar el usuario o manejarlo según tu lógica de negocio
-
+        user.setEnabled(true);
         usuarioRepository.save(user);
-
         return ResponseEntity.ok("Usuario registrado exitosamente");
     }
 

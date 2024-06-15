@@ -4,10 +4,10 @@ public class LoginRequest {
     private String username;
     private String password;
 
-    // Constructor vacío necesario para la deserialización
+
     public LoginRequest() {}
 
-    // Constructor con todos los campos
+
     public LoginRequest(String username, String password) {
         this.username = username;
         this.password = password;

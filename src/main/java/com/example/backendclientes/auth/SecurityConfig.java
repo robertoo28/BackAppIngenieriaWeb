@@ -22,13 +22,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(authz -> authz
                         .requestMatchers("/api/auth/**").permitAll().requestMatchers("/api/ventas").authenticated().requestMatchers("/api/clientes").authenticated()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 ).addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // Aquí deberías añadir tu filtro JWT personalizado, por ejemplo:
         // http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -41,6 +40,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    // Definiciones de otros beans, como authTokenFilter(), passwordEncoder(), etc.
 }
 
