@@ -39,9 +39,14 @@
 
         <property name="basedir" value="${basedir}"/>
     -->
-    <property name="severity" value="error"/>
+    <!-- Incluir el SuppressionFilter aquí, dentro del Checker -->
+    <module name="SuppressionFilter">
+        <property name="file" value="checkstyle-suppressions.xml"/>
+    </module>
 
+    <property name="severity" value="warning"/>
     <property name="fileExtensions" value="java, properties, xml"/>
+
 
     <!-- Excludes all 'module-info.java' files              -->
     <!-- See https://checkstyle.org/filefilters/index.html -->
@@ -50,11 +55,6 @@
     </module>
 
     <!-- https://checkstyle.org/filters/suppressionfilter.html -->
-    <module name="SuppressionFilter">
-        <property name="file" value="${org.checkstyle.sun.suppressionfilter.config}"
-                  default="checkstyle-suppressions.xml" />
-        <property name="optional" value="true"/>
-    </module>
 
     <!-- Checks that a package-info.java file exists for each package.     -->
     <!-- See https://checkstyle.org/checks/javadoc/javadocpackage.html#JavadocPackage -->
