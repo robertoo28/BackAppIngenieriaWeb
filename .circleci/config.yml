@@ -24,6 +24,11 @@ jobs:
             echo "Commit SHA filtrado: ${GIT_COMMIT}"
 
       - run:
+          name: Solucionar conflicto de ca-certificates-java
+          command: |
+            sudo rm -rf /etc/ssl/certs/java/cacerts
+
+      - run:
           name: Instalar Maven
           command: |
             sudo apt-get update
