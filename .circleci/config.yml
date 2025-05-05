@@ -47,49 +47,35 @@ jobs:
             cd ~/project
             mvn checkstyle:check
 
-      - setup_remote_docker:
-          version: 20.10.7
-
-      - run:
-          name: Construir Imagen Docker
-          command: |
-            cd ~/project
-            docker build -t backend-clientes:latest .
-
-      - run:
-          name: Ejecutar Contenedor Docker
-          command: |
-            docker run -d -p 8081:8081 --name backend-app backend-clientes:latest
-
       - run:
           name: Notificar Éxito en GitHub
           when: on_success
           command: |
             curl -u ${GITHUB_USER}:${GITHUB_TOKEN} \
-            -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/robertoo28/BackAppIngenieriaWeb/statuses/${GIT_COMMIT} \
-            -d '{
-              "state": "success",
-              "context": "CI/CD",
-              "description": "Build exitoso",
-              "target_url": "'"${CIRCLE_BUILD_URL}"'"
-            }'
+              -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/robertoo28/BackAppIngenieriaWeb/statuses/${GIT_COMMIT} \
+              -d '{
+                "state": "success",
+                "context": "CI/CD",
+                "description": "Build exitoso",
+                "target_url": "'"${CIRCLE_BUILD_URL}"'"
+              }'
 
       - run:
           name: Notificar Fallo en GitHub
           when: on_fail
           command: |
             curl -u ${GITHUB_USER}:${GITHUB_TOKEN} \
-            -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/robertoo28/BackAppIngenieriaWeb/statuses/${GIT_COMMIT} \
-            -d '{
-              "state": "failure",
-              "context": "CI/CD",
-              "description": "Build fallido",
-              "target_url": "'"${CIRCLE_BUILD_URL}"'"
-            }'
+              -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/robertoo28/BackAppIngenieriaWeb/statuses/${GIT_COMMIT} \
+              -d '{
+                "state": "failure",
+                "context": "CI/CD",
+                "description": "Build fallido",
+                "target_url": "'"${CIRCLE_BUILD_URL}"'"
+              }'
 
 workflows:
   version: 2
