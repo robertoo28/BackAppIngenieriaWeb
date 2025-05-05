@@ -27,7 +27,9 @@ jobs:
           name: Instalar Maven
           command: |
             sudo apt-get update
-            sudo apt-get install -y maven
+            sudo apt-get install -y --no-install-recommends maven
+            sudo apt-get clean
+            sudo rm -rf /var/lib/apt/lists/*
 
       - run:
           name: Compilar el Proyecto
