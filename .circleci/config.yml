@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.4.0
+
 executors:
   default:
     docker:
@@ -10,99 +13,54 @@ executors:
           MYSQL_DATABASE: db_springboot_backend
     environment:
       MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-      SPRING_DATASOURCE_URL: "jdbc:mysql://127.0.0.1:3306/db_springboot_backend"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "admin"
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: "com.mysql.cj.jdbc.Driver"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+      # Añade tus SPRING_DATASOURCE_... variables aquí si es necesario
 
 jobs:
-  build:
+  compile:
     executor: default
     steps:
-      - checkout:
-          path: ~/project
+      - checkout
+      - run: mvn clean install -DskipTests
 
+  test:
+    executor: default
+    parallelism: 4
+    steps:
+      - checkout
       - run:
-          name: Obtener Commit SHA
-          command: |
-            cd ~/project
-            echo "Obteniendo el SHA del último commit..."
-            GIT_COMMIT=$(git rev-parse HEAD)
-            echo "export GIT_COMMIT=${GIT_COMMIT}" >> $BASH_ENV
-            echo "Commit SHA filtrado: ${GIT_COMMIT}"
+          name: Run tests in parallel
+          command: mvn test --fail-at-end -Dtest=$(circleci tests split --split-by=timings)
 
-      - run:
-          name: Solucionar conflicto de ca-certificates-java
-          command: |
-            sudo rm -rf /etc/ssl/certs/java/cacerts
+  lint:
+    executor: default
+    steps:
+      - checkout
+      - run: mvn checkstyle:check
 
+  notify:
+    docker:
+      - image: cimg/base:stable
+    steps:
       - run:
-          name: Instalar Maven
+          name: Notificar estado
           command: |
-            sudo apt-get update
-            sudo apt-get install -y --no-install-recommends maven
-            sudo apt-get clean
-            sudo rm -rf /var/lib/apt/lists/*
-
-      - run:
-          name: Esperar a que MySQL esté listo
-          command: |
-            for i in $(seq 1 30); do
-              mysqladmin ping -h 127.0.0.1 -uroot -padmin &>/dev/null && break
-              echo "Esperando MySQL… ($i/30)"; sleep 2
-            done
-
-      - run:
-          name: Compilar el Proyecto
-          command: |
-            cd ~/project
-            mvn clean install
-
-      - run:
-          name: Ejecutar Pruebas
-          command: |
-            cd ~/project
-            mvn test -DskipTests=false
-
-      - run:
-          name: Análisis Estático de Código (Checkstyle)
-          command: |
-            cd ~/project
-            mvn checkstyle:check
-
-      - run:
-          name: Notificar Éxito en GitHub
-          when: on_success
-          command: |
-            curl -u ${GITHUB_USER}:${GITHUB_TOKEN} \
-              -X POST \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/robertoo28/BackAppIngenieriaWeb/statuses/${GIT_COMMIT} \
-              -d '{
-                "state": "success",
-                "context": "CI/CD",
-                "description": "Build exitoso",
-                "target_url": "'"${CIRCLE_BUILD_URL}"'"
-              }'
-
-      - run:
-          name: Notificar Fallo en GitHub
-          when: on_fail
-          command: |
-            curl -u ${GITHUB_USER}:${GITHUB_TOKEN} \
-              -X POST \
-              -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/robertoo28/BackAppIngenieriaWeb/statuses/${GIT_COMMIT} \
-              -d '{
-                "state": "failure",
-                "context": "CI/CD",
-                "description": "Build fallido",
-                "target_url": "'"${CIRCLE_BUILD_URL}"'"
-              }'
+            if [ "$CIRCLE_JOB_STATUS" = "success" ]; then
+              echo "Build exitoso. Agrega aquí tu notificación (curl o slack/notify)"
+            else
+              echo "Build fallido. Agrega aquí tu notificación de fallo"
+            fi
 
 workflows:
   version: 2
-  build_and_test:
+  ci_pipeline:
     jobs:
-      - build
+      - compile
+      - test:
+          requires:
+            - compile
+      - lint:
+          requires:
+            - test
+      - notify:
+          requires:
+            - lint
