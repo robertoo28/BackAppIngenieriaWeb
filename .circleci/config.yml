@@ -4,8 +4,17 @@ executors:
   default:
     docker:
       - image: cimg/openjdk:17.0
+      - image: mysql:8.0
+        environment:
+          MYSQL_ROOT_PASSWORD: admin
+          MYSQL_DATABASE: db_springboot_backend
     environment:
       MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://127.0.0.1:3306/db_springboot_backend"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "admin"
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: "com.mysql.cj.jdbc.Driver"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
 
 jobs:
   build:
@@ -37,6 +46,14 @@ jobs:
             sudo rm -rf /var/lib/apt/lists/*
 
       - run:
+          name: Esperar a que MySQL esté listo
+          command: |
+            for i in $(seq 1 30); do
+              mysqladmin ping -h 127.0.0.1 -uroot -padmin &>/dev/null && break
+              echo "Esperando MySQL… ($i/30)"; sleep 2
+            done
+
+      - run:
           name: Compilar el Proyecto
           command: |
             cd ~/project
@@ -46,7 +63,7 @@ jobs:
           name: Ejecutar Pruebas
           command: |
             cd ~/project
-            mvn test
+            mvn test -DskipTests=false
 
       - run:
           name: Análisis Estático de Código (Checkstyle)
